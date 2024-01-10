@@ -37,14 +37,21 @@ export default function MainScreen(props: IMainScreenProps) {
     setArrayData(generateAnArray(length, maxValue));
   };
 
+  let timer: NodeJS.Timer;
+
+  const handleStop = () => {
+    clearInterval(timer);
+    setDisable(false);
+  };
+
   const bubbleSortAlgo = async () => {
     const len = arrayData.length;
     setDisable(true);
 
     let i = 0;
     let j = 0;
-    const timer = setInterval(() => {
-      if (j < len - i - 1) {
+    timer = setInterval(() => {
+      if (j < len - i) {
         arrayData[j] > arrayData[j + 1]
           ? setActiveIndex(j + 1)
           : setActiveIndex(j + 2);
@@ -59,11 +66,13 @@ export default function MainScreen(props: IMainScreenProps) {
       } else {
         j = 0;
         i++;
+        setActiveIndex(j);
+
         if (i >= len) {
           clearInterval(timer);
+          setActiveIndex(-1);
           setDisable(false);
         }
-        setActiveIndex(j);
       }
     }, delay);
   };
@@ -123,13 +132,18 @@ export default function MainScreen(props: IMainScreenProps) {
   };
 
   return (
-    <div className="flex flex-col w-full m-auto max-w-7xl">
+    <div className="flex flex-col h-screen w-full m-auto max-w-7xl">
       <Header title="Sorting Visualizer" />
       <div className="flex flex-row m-auto justify-between items-center outline rounded-md p-2 outline-orange-700">
         <ButtonComponent
           disable={disable}
           title="Generate new array"
           callback={generateNewArrayHandler}
+        />
+        <ButtonComponent
+          disable={!disable}
+          title="Stop sorting"
+          callback={handleStop}
         />
         <Slider
           title={"Length of the array"}
@@ -189,10 +203,4 @@ export default function MainScreen(props: IMainScreenProps) {
       </div>
     </div>
   );
-}
-
-function sleep(miliseconds: number) {
-  var currentTime = new Date().getTime();
-
-  while (currentTime + miliseconds >= new Date().getTime()) {}
 }
